@@ -10,7 +10,7 @@ allprojects {
 ```
 ```
 dependencies {
-	implementation 'com.github.hscoraline:myimagepicker:latest_version'
+	implementation 'com.github.songuyen1816:myimagepicker:latest_version'
 }
 ```
 ## Usage
