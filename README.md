@@ -3,15 +3,15 @@ Just a simple library to help you pick images in external storage, give a star i
 ## Get it
 ```
 allprojects {
-		repositories {
-			maven { url 'https://jitpack.io' }
-		}
+	repositories {
+		maven { url 'https://jitpack.io' }
+	}
 }
 ```
 ```
-  dependencies {
-	        implementation 'com.github.hscoraline:myimagepicker:latest_version'
-	}
+dependencies {
+	implementation 'com.github.hscoraline:myimagepicker:latest_version'
+}
 ```
 ## Usage
 -Simple using
@@ -27,4 +27,4 @@ PickerConfig config = new PickerConfig.Builder()
                 
 MyImagePicker.getInstance().setPickerConfig(config).start(activity);
 ```
-##Thank you
+## Thank you
