@@ -1,4 +1,4 @@
-# Simple image picker [![](https://jitpack.io/v/hscoraline/myimagepicker.svg)](https://jitpack.io/#hscoraline/myimagepicker)
+# Simple image picker [![](https://jitpack.io/v/songuyen1816/myimagepicker.svg)](https://jitpack.io/#songuyen1816/myimagepicker)
 Just a simple library to help you pick images in external storage, give a star if you find it useful
 ## Get it
 ```
