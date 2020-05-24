@@ -3,6 +3,8 @@ package com.bsp.myimagepicker;
 import android.app.Activity;
 import android.content.Intent;
 
+import androidx.fragment.app.Fragment;
+
 public class MyImagePicker {
     private PickerConfig pickerConfig;
 
@@ -35,4 +37,14 @@ public class MyImagePicker {
         start(activity, PickerConfig.IMAGE_PICKER_REQUEST);
     }
 
+    public void start(Fragment fragment, int requestCode) {
+        if (pickerConfig == null) pickerConfig = new PickerConfig.Builder().build();
+        Intent i = new Intent(fragment.getContext(), PickerActivity.class);
+        i.putExtra(PickerConfig.CONFIG_BUNDLE_KEY, pickerConfig);
+        fragment.startActivityForResult(i, requestCode);
+    }
+
+    public void start(Fragment fragment) {
+        start(fragment, PickerConfig.IMAGE_PICKER_REQUEST);
+    }
 }
