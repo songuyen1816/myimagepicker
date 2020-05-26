@@ -22,13 +22,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         PickerConfig config = new PickerConfig.Builder()
-                .setMaxCount(2)
-                .setMultiPicker(true)
+                .setCompressed(true)
                 .setPickerTitle("Chọn Ảnh")
                 .setStyleColor(Color.parseColor("#3498db")).build();
 
         MyImagePicker.getInstance().setPickerConfig(config).start(this);
-
     }
 
     @Override

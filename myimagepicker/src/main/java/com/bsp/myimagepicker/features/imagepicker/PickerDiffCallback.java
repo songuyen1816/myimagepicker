@@ -1,4 +1,4 @@
-package com.bsp.myimagepicker;
+package com.bsp.myimagepicker.features.imagepicker;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;

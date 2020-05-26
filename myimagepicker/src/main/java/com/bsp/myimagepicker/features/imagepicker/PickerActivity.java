@@ -1,4 +1,4 @@
-package com.bsp.myimagepicker;
+package com.bsp.myimagepicker.features.imagepicker;
 
 import android.Manifest;
 import android.content.Intent;
@@ -14,12 +14,16 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.bsp.myimagepicker.PickerConfig;
+import com.bsp.myimagepicker.PickerUtils;
+import com.bsp.myimagepicker.R;
 import com.bsp.myimagepicker.base.BaseActivity;
 import com.bsp.myimagepicker.databinding.ActivityImagePickerBinding;
 import com.bsp.myimagepicker.listener.ImageAdapterListener;
 import com.bsp.myimagepicker.listener.ImagePickerListener;
 import com.bsp.myimagepicker.model.MyImage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,6 +148,26 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
 
     @Override
     public void onDone() {
+
+        if(currentConfig.isCompressed()){
+            ArrayList<String> filePathTemp = new ArrayList<>();
+
+            for(String filePath : filePathPicked){
+                File unCompressed = new File(filePath);
+                File compressed;
+                if(unCompressed.length() > 1024 * 1024){
+                    compressed = PickerUtils.compressImage(getApplicationContext(), unCompressed);
+                } else {
+                    compressed = unCompressed;
+                }
+                filePathTemp.add(compressed.getAbsolutePath());
+            }
+
+            filePathPicked.clear();
+            filePathPicked.addAll(filePathTemp);
+        }
+
+
         Intent i = new Intent();
         i.putStringArrayListExtra(PickerConfig.FILE_PATH_DATA, filePathPicked);
         setResult(RESULT_OK, i);

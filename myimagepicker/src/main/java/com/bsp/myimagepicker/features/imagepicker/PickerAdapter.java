@@ -1,4 +1,4 @@
-package com.bsp.myimagepicker;
+package com.bsp.myimagepicker.features.imagepicker;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
