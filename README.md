@@ -14,17 +14,32 @@ dependencies {
 }
 ```
 ## Usage
--Simple using
+- Simple using
 ```
 MyImagePicker.getInstance().start(activity);
 ```
--Customize
+- Customize
 ```
 PickerConfig config = new PickerConfig.Builder()
                 .setMaxCount(2)
+		.setCompressed(true)
                 .setPickerTitle("Pick your images")
                 .setStyleColor(Color.parseColor("#3498db")).build();
                 
 MyImagePicker.getInstance().setPickerConfig(config).start(activity);
 ```
+- Get results
+```
+@Override
+protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+     super.onActivityResult(requestCode, resultCode, data);
+     if (requestCode == PickerConfig.IMAGE_PICKER_REQUEST && resultCode == RESULT_OK) {
+         if (data != null) {
+             List<String> filePath = data.getStringArrayListExtra(PickerConfig.FILE_PATH_DATA);
+                
+         }
+     }
+}
+```
+
 ## Thank you
