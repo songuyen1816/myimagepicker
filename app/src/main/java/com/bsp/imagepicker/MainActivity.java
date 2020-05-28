@@ -35,9 +35,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PickerConfig.IMAGE_PICKER_REQUEST && resultCode == RESULT_OK) {
             if (data != null) {
                 List<String> filePath = data.getStringArrayListExtra(PickerConfig.FILE_PATH_DATA);
-                for (String path : Objects.requireNonNull(filePath)){
-                    Log.e("PATH", path);
-                }
+
             }
         }
     }

@@ -9,13 +9,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.ViewGroup;
 import android.view.Window;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +18,6 @@ import java.util.List;
 import id.zelory.compressor.Compressor;
 
 
-@SuppressWarnings("unchecked")
 public final class PickerUtils {
 
     public static List<String> getExternalStorageImages(Context context) {
@@ -54,24 +48,6 @@ public final class PickerUtils {
 
         Collections.reverse(listImage);
         return listImage;
-    }
-
-    private static Object deepClone(Object object) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    static <T> List<T> createClone(List<T> oldList) {
-        return (List<T>) deepClone(oldList);
     }
 
     public static File compressImage(Context context, File file){

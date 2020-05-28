@@ -1,6 +1,5 @@
 package com.bsp.myimagepicker;
 
-import android.app.Application;
 import android.graphics.Color;
 
 import java.io.Serializable;

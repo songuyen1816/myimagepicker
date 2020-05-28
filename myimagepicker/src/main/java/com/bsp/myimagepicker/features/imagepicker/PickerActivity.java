@@ -47,7 +47,6 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
         binding.toolbar.setBackgroundColor(currentConfig.getStyleColor());
 
         fillConfig();
-        initControls();
         initEvents();
     }
 
@@ -59,17 +58,6 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
                 : currentConfig.getPickerTitle());
     }
 
-    private void initControls() {
-        adapter = new PickerAdapter(this, new PickerDiffCallback());
-        adapter.setImagePickedDrawable(createImagePickedDrawable());
-
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
-
-        binding.rvImages.setLayoutManager(gridLayoutManager);
-        binding.rvImages.setItemAnimator(null);
-        binding.rvImages.setAdapter(adapter);
-    }
-
     private Drawable createImagePickedDrawable() {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setShape(GradientDrawable.RECTANGLE);
@@ -78,15 +66,26 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     }
 
     private void initEvents() {
-        adapter.setListener(this);
     }
 
     void loadImagesFromSDCard() {
         List<String> listPath = PickerUtils.getExternalStorageImages(getApplication());
+
         List<MyImage> imageList = new ArrayList<>();
         for (String filePath : listPath) {
             imageList.add(new MyImage(filePath, false));
         }
+
+        adapter = new PickerAdapter(this, new PickerDiffCallback());
+        adapter.setImagePickedDrawable(createImagePickedDrawable());
+        adapter.setListener(this);
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
+
+        binding.rvImages.setLayoutManager(gridLayoutManager);
+        binding.rvImages.setItemAnimator(null);
+        binding.rvImages.setAdapter(adapter);
+
         adapter.submitList(imageList);
     }
 
@@ -149,13 +148,17 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     @Override
     public void onDone() {
 
-        if(currentConfig.isCompressed()){
+        if(filePathPicked.isEmpty()){
+            return;
+        }
+
+        if (currentConfig.isCompressed()) {
             ArrayList<String> filePathTemp = new ArrayList<>();
 
-            for(String filePath : filePathPicked){
+            for (String filePath : filePathPicked) {
                 File unCompressed = new File(filePath);
                 File compressed;
-                if(unCompressed.length() > 1024 * 1024){
+                if (unCompressed.length() > 1024 * 1024) {
                     compressed = PickerUtils.compressImage(getApplicationContext(), unCompressed);
                 } else {
                     compressed = unCompressed;
@@ -166,7 +169,6 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
             filePathPicked.clear();
             filePathPicked.addAll(filePathTemp);
         }
-
 
         Intent i = new Intent();
         i.putStringArrayListExtra(PickerConfig.FILE_PATH_DATA, filePathPicked);
