@@ -34,6 +34,7 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     private ActivityImagePickerBinding binding;
     private ArrayList<String> filePathPicked = new ArrayList<>();
     private PickerConfig currentConfig;
+    private boolean permissionGrantFlag = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,6 +70,8 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     }
 
     void loadImagesFromSDCard() {
+        permissionGrantFlag = true;
+
         List<String> listPath = PickerUtils.getExternalStorageImages(getApplication());
 
         List<MyImage> imageList = new ArrayList<>();
@@ -115,7 +118,9 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     @Override
     protected void onResume() {
         super.onResume();
-        checkPermissions();
+        if(!permissionGrantFlag){
+            checkPermissions();
+        }
     }
 
     @Override
@@ -148,7 +153,7 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     @Override
     public void onDone() {
 
-        if(filePathPicked.isEmpty()){
+        if (filePathPicked.isEmpty()) {
             return;
         }
 
