@@ -4,10 +4,13 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera" />
 
     <application
         android:requestLegacyExternalStorage="true"
         >
+
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
         <activity
             android:name=".features.imagepicker.PickerActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
