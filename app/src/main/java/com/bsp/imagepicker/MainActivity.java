@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         PickerConfig config = new PickerConfig.Builder()
-                .setCompressed(true)
+//                .setCompressed(true)
                 .setPickerTitle("Chọn Ảnh")
                 .setStyleColor(Color.parseColor("#3498db")).build();
 

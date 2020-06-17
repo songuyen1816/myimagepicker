@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -100,13 +101,13 @@ public class CameraActivity extends BaseActivity {
 
         Preview preview = new Preview.Builder().setTargetRotation(Surface.ROTATION_0)
 //                .setTargetResolution(new Size(previewView.getWidth(), previewView.getHeight()))
-                .setTargetAspectRatio(aspectRatio(metrics.widthPixels, metrics.heightPixels))
+//                .setTargetAspectRatio(aspectRatio(metrics.widthPixels, metrics.heightPixels))
                 .build();
 
         imageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
 //                .setTargetResolution(new Size(previewView.getWidth(), previewView.getHeight()))
-                .setTargetAspectRatio(aspectRatio(metrics.widthPixels, metrics.heightPixels))
+//                .setTargetAspectRatio(aspectRatio(metrics.widthPixels, metrics.heightPixels))
                 .setTargetRotation(Surface.ROTATION_0)
                 .setFlashMode(ImageCapture.FLASH_MODE_AUTO)
                 .build();
@@ -233,12 +234,13 @@ public class CameraActivity extends BaseActivity {
     private void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (
                 ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)) {
+                        || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)) {
 
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},
                     PERMISSION_REQUEST);
         } else {
-            openCamera();
+            Handler handler = new Handler();
+            handler.postDelayed(this::openCamera, 500);
         }
     }
 
