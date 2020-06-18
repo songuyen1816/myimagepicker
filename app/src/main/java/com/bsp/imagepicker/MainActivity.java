@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.bsp.myimagepicker.MyImagePicker;
 import com.bsp.myimagepicker.PickerConfig;
+import com.bsp.myimagepicker.model.MyImage;
 
 import java.util.List;
 import java.util.Objects;

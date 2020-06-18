@@ -3,13 +3,19 @@ package com.bsp.myimagepicker;
 import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.ViewGroup;
 import android.view.Window;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,5 +76,26 @@ public final class PickerUtils {
         dialog.setCancelable(false);
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         return dialog;
+    }
+
+    public static Bitmap flipBitmap(Bitmap bitmap){
+        Matrix matrix = new Matrix();
+        matrix.setScale(-1, 1);
+        matrix.postTranslate( bitmap.getWidth(),0);
+        return Bitmap.createBitmap( bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    public static void saveBitmapToFile(String filePath, Bitmap bitmap){
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bytes);
+        File f = new File(filePath);
+        FileOutputStream fo = null;
+        try {
+            fo = new FileOutputStream(f);
+            fo.write(bytes.toByteArray());
+            fo.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

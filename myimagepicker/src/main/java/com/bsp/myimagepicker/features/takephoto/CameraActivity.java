@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.os.Build;
@@ -22,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
@@ -38,6 +41,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -52,14 +56,16 @@ public class CameraActivity extends BaseActivity {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private PreviewView previewView;
     private ImageCapture imageCapture;
-    private View btnTakePhoto;
+    private View btnTakePhoto, btnFlipCamera;
     private Camera camera;
+    private int lensFacing = CameraSelector.LENS_FACING_BACK;
 
     private OrientationEventListener orientationEventListener;
     private String mCurrentFilePath = "";
 
     private PickerConfig currentConfig;
     private Dialog loadingDialog;
+    private ProcessCameraProvider cameraProvider;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,6 +82,7 @@ public class CameraActivity extends BaseActivity {
 
     private void initControls() {
         btnTakePhoto = findViewById(R.id.btn_take_photo);
+        btnFlipCamera = findViewById(R.id.btn_flip_camera);
         loadingDialog = PickerUtils.createLoadingDialog(this);
         previewView = findViewById(R.id.preview_view);
         previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
@@ -85,19 +92,18 @@ public class CameraActivity extends BaseActivity {
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
             try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                bindPreview(cameraProvider);
+                cameraProvider = cameraProviderFuture.get();
+                bindPreview();
             } catch (ExecutionException | InterruptedException e) {
                 //Ignore
             }
         }, ContextCompat.getMainExecutor(this));
     }
 
-    private void bindPreview(ProcessCameraProvider cameraProvider) {
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        Display display = getWindowManager().getDefaultDisplay();
-        display.getRealMetrics(metrics);
+    private void bindPreview() {
+//        DisplayMetrics metrics = new DisplayMetrics();
+//        Display display = getWindowManager().getDefaultDisplay();
+//        display.getRealMetrics(metrics);
 
         Preview preview = new Preview.Builder().setTargetRotation(Surface.ROTATION_0)
 //                .setTargetResolution(new Size(previewView.getWidth(), previewView.getHeight()))
@@ -114,13 +120,12 @@ public class CameraActivity extends BaseActivity {
 
 
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .requireLensFacing(lensFacing)
                 .build();
 
         cameraProvider.unbindAll();
 
         camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
-//        camera.getCameraControl().enableTorch()
         preview.setSurfaceProvider(previewView.createSurfaceProvider(camera.getCameraInfo()));
     }
 
@@ -128,12 +133,21 @@ public class CameraActivity extends BaseActivity {
         btnTakePhoto.setOnClickListener(v -> {
             captureImage();
         });
+
+        btnFlipCamera.setOnClickListener(v->{
+            if (lensFacing == CameraSelector.LENS_FACING_BACK){
+                lensFacing = CameraSelector.LENS_FACING_FRONT;
+            } else {
+                lensFacing = CameraSelector.LENS_FACING_BACK;
+            }
+            bindPreview();
+        });
     }
 
     private void captureImage() {
         loadingDialog.show();
 
-        File directory = new File(Environment.getExternalStorageDirectory() + "/" + getApplicationContext().getPackageName() + "/");
+        File directory = new File(PickerConfig.DEFAULT_DIRECTORY);
         if (!directory.exists()) {
             directory.mkdir();
         }
@@ -146,6 +160,13 @@ public class CameraActivity extends BaseActivity {
         imageCapture.takePicture(outputFileOptions, executorService, new ImageCapture.OnImageSavedCallback() {
             @Override
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                if(lensFacing == CameraSelector.LENS_FACING_FRONT){
+                    File imageFile = new File(mCurrentFilePath);
+                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());
+                    Bitmap flippedBitmap =  PickerUtils.flipBitmap(bitmap);
+                    mCurrentFilePath = directory + "/" + UUID.randomUUID().toString() + ".jpg";
+                    PickerUtils.saveBitmapToFile(mCurrentFilePath, flippedBitmap);
+                }
                 returnData();
             }
 
@@ -168,7 +189,7 @@ public class CameraActivity extends BaseActivity {
                         || (orientation >= 250 && orientation <= 290)) {
 
                     if (imageCapture != null) {
-                        imageCapture.setTargetRotation(getOrientation(orientation)); //notify the capture session about the orientation change
+                        imageCapture.setTargetRotation(getOrientation(orientation));
                     }
                 }
             }
@@ -216,7 +237,7 @@ public class CameraActivity extends BaseActivity {
         loadingDialog.dismiss();
 
         Intent i = new Intent();
-        i.putStringArrayListExtra(PickerConfig.FILE_PATH_DATA, new ArrayList<>(Arrays.asList(mCurrentFilePath)));
+        i.putStringArrayListExtra(PickerConfig.FILE_PATH_DATA, new ArrayList<>(Collections.singletonList(mCurrentFilePath)));
         setResult(RESULT_OK, i);
         finish();
     }

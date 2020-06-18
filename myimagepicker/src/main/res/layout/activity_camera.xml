@@ -61,6 +61,22 @@
                 />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/btn_flip_camera"
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:layout_marginEnd="@dimen/_37sdp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            >
+            <ImageView
+                android:src="@drawable/ic_flip_camera"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

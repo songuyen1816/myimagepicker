@@ -1,10 +1,14 @@
 package com.bsp.myimagepicker;
 
 import android.graphics.Color;
+import android.os.Environment;
 
+import java.io.File;
 import java.io.Serializable;
 
 public class PickerConfig implements Serializable {
+    public final static String DEFAULT_DIRECTORY = Environment.getExternalStorageDirectory() + "/com.bsp.imagepicker/";
+
     public static int IMAGE_PICKER_REQUEST = 1816;
     public static String CONFIG_BUNDLE_KEY = "PICKER_CONFIG";
     public static String FILE_PATH_DATA = "FILE_PATH_DATA";

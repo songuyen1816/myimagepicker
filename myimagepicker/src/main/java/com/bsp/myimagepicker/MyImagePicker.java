@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment;
 import com.bsp.myimagepicker.features.imagepicker.PickerActivity;
 import com.bsp.myimagepicker.features.takephoto.CameraActivity;
 
+import java.io.File;
+
 public class MyImagePicker {
     private PickerConfig pickerConfig;
     private AlertDialog alertDialog;
@@ -32,10 +34,12 @@ public class MyImagePicker {
     }
 
     public void start(Activity activity) {
+        clearData();
         showDialog(activity);
     }
 
     public void start(Fragment fragment) {
+        clearData();
         showDialog(fragment);
     }
 
@@ -91,5 +95,16 @@ public class MyImagePicker {
         Intent i = new Intent(fragment.getContext(), PickerActivity.class);
         i.putExtra(PickerConfig.CONFIG_BUNDLE_KEY, pickerConfig);
         fragment.startActivityForResult(i, PickerConfig.IMAGE_PICKER_REQUEST);
+    }
+
+    private void clearData(){
+        File directory = new File(PickerConfig.DEFAULT_DIRECTORY);
+        if(!directory.exists()){
+            return;
+        } else if (directory.isDirectory()){
+            for (File file : directory.listFiles()){
+                if(!file.isDirectory()) file.delete();
+            }
+        }
     }
 }
