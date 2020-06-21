@@ -126,7 +126,7 @@ public class CameraActivity extends BaseActivity {
         cameraProvider.unbindAll();
 
         camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
-        preview.setSurfaceProvider(previewView.createSurfaceProvider(camera.getCameraInfo()));
+        preview.setSurfaceProvider(previewView.createSurfaceProvider());
     }
 
     private void initEvents() {

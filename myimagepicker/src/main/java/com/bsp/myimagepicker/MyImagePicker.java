@@ -1,9 +1,14 @@
 package com.bsp.myimagepicker;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bsp.myimagepicker.features.imagepicker.PickerActivity;
@@ -34,12 +39,12 @@ public class MyImagePicker {
     }
 
     public void start(Activity activity) {
-        clearData();
+        clearData(activity.getApplicationContext());
         showDialog(activity);
     }
 
     public void start(Fragment fragment) {
-        clearData();
+        clearData(fragment.getContext());
         showDialog(fragment);
     }
 
@@ -97,13 +102,18 @@ public class MyImagePicker {
         fragment.startActivityForResult(i, PickerConfig.IMAGE_PICKER_REQUEST);
     }
 
-    private void clearData(){
-        File directory = new File(PickerConfig.DEFAULT_DIRECTORY);
-        if(!directory.exists()){
+    private void clearData(Context context) {
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return;
-        } else if (directory.isDirectory()){
-            for (File file : directory.listFiles()){
-                if(!file.isDirectory()) file.delete();
+        }
+        File directory = new File(PickerConfig.DEFAULT_DIRECTORY);
+        if (!directory.exists()) {
+            return;
+        } else if (directory.isDirectory()) {
+            for (File file : directory.listFiles()) {
+                if (!file.isDirectory()) file.delete();
             }
         }
     }
