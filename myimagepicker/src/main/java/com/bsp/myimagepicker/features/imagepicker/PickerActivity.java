@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.bsp.myimagepicker.DisposableManager;
 import com.bsp.myimagepicker.PickerConfig;
 import com.bsp.myimagepicker.PickerUtils;
 import com.bsp.myimagepicker.R;
@@ -27,12 +31,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
+@SuppressWarnings("UnstableApiUsage")
 public class PickerActivity extends BaseActivity implements ImageAdapterListener, ImagePickerListener {
 
     private final int PERMISSION_REQUEST = 111;
     private PickerAdapter adapter;
     private ActivityImagePickerBinding binding;
-    private ArrayList<String> filePathPicked = new ArrayList<>();
+    private ArrayList<Uri> filePathPicked = new ArrayList<>();
     private PickerConfig currentConfig;
     private boolean permissionGrantFlag = false;
 
@@ -72,13 +81,6 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     void loadImagesFromSDCard() {
         permissionGrantFlag = true;
 
-        List<String> listPath = PickerUtils.getExternalStorageImages(getApplication());
-
-        List<MyImage> imageList = new ArrayList<>();
-        for (String filePath : listPath) {
-            imageList.add(new MyImage(filePath, false));
-        }
-
         adapter = new PickerAdapter(this, new PickerDiffCallback());
         adapter.setImagePickedDrawable(createImagePickedDrawable());
         adapter.setListener(this);
@@ -89,7 +91,24 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
         binding.rvImages.setItemAnimator(null);
         binding.rvImages.setAdapter(adapter);
 
-        adapter.submitList(imageList);
+        DisposableManager.add(
+                Single.fromCallable(() -> PickerUtils.getExternalStorageImagesQ(getApplicationContext()))
+                        .map(paths -> {
+                            List<MyImage> imageList = new ArrayList<>();
+                            for (Uri uri : paths) {
+                                imageList.add(new MyImage(uri, false));
+                            }
+                            return imageList;
+                        })
+                        .doOnSubscribe(d -> showLoading())
+                        .doOnTerminate(this::hideLoading)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(images -> {
+                            adapter.submitList(images);
+                        }, throwable -> {
+                            Log.e("THROWABLE", throwable.getLocalizedMessage());
+                        }));
     }
 
     private void checkPermissions() {
@@ -118,31 +137,31 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     @Override
     protected void onResume() {
         super.onResume();
-        if(!permissionGrantFlag){
+        if (!permissionGrantFlag) {
             checkPermissions();
         }
     }
 
     @Override
-    public void onImagePicked(String path) {
+    public void onImagePicked(Uri uri) {
         if (filePathPicked.size() >= currentConfig.getMaxCount()) {
             filePathPicked.remove(0);
             adapter.notifyMaxCountItem();
         }
-        filePathPicked.add(path);
+        filePathPicked.add(uri);
         fillConfig();
     }
 
     @Override
-    public void onImageUnPicked(String path) {
-        removePickedImage(path);
+    public void onImageUnPicked(Uri uri) {
+        removePickedImage(uri);
         fillConfig();
     }
 
-    private void removePickedImage(String path) {
+    private void removePickedImage(Uri uri) {
         int removePos = 0;
         for (int i = 0; i < filePathPicked.size(); i++) {
-            if (filePathPicked.get(i).equals(path)) {
+            if (filePathPicked.get(i).equals(uri)) {
                 removePos = i;
                 break;
             }
@@ -152,15 +171,36 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
 
     @Override
     public void onDone() {
-
         if (filePathPicked.isEmpty()) {
             return;
+        }
+        DisposableManager.add(Single.fromCallable(() -> getImagePathAndReturnData()).doOnSubscribe(d -> showLoading())
+                .doOnTerminate(this::hideLoading)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(paths -> {
+                    Intent i = new Intent();
+                    i.putStringArrayListExtra(PickerConfig.FILE_PATH_DATA, paths);
+                    setResult(RESULT_OK, i);
+                    finish();
+                }, throwable -> {
+                    Log.e("THROWABLE", throwable.getLocalizedMessage());
+                }));
+
+    }
+
+    private ArrayList<String> getImagePathAndReturnData() {
+        ArrayList<String> listPath = new ArrayList<>();
+
+        for (Uri uri : filePathPicked) {
+            String path = PickerUtils.createCopyAndReturnRealPath(getApplicationContext(), uri);
+            listPath.add(path);
         }
 
         if (currentConfig.isCompressed()) {
             ArrayList<String> filePathTemp = new ArrayList<>();
 
-            for (String filePath : filePathPicked) {
+            for (String filePath : listPath) {
                 File unCompressed = new File(filePath);
                 File compressed;
                 if (unCompressed.length() > 1024 * 1024) {
@@ -168,17 +208,14 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
                 } else {
                     compressed = unCompressed;
                 }
+                Log.e("FILE PATH", compressed.getAbsolutePath());
                 filePathTemp.add(compressed.getAbsolutePath());
             }
 
-            filePathPicked.clear();
-            filePathPicked.addAll(filePathTemp);
+            listPath.clear();
+            listPath.addAll(filePathTemp);
         }
-
-        Intent i = new Intent();
-        i.putStringArrayListExtra(PickerConfig.FILE_PATH_DATA, filePathPicked);
-        setResult(RESULT_OK, i);
-        finish();
+        return listPath;
     }
 
     @Override

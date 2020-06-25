@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -108,7 +109,7 @@ public class MyImagePicker {
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return;
         }
-        File directory = new File(PickerConfig.DEFAULT_DIRECTORY);
+        File directory = PickerUtils.getExternalStoragePath(context.getApplicationContext());
         if (!directory.exists()) {
             return;
         } else if (directory.isDirectory()) {

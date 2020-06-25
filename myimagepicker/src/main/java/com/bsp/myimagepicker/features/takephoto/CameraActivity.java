@@ -10,21 +10,18 @@ import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
@@ -40,7 +37,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
@@ -134,8 +130,8 @@ public class CameraActivity extends BaseActivity {
             captureImage();
         });
 
-        btnFlipCamera.setOnClickListener(v->{
-            if (lensFacing == CameraSelector.LENS_FACING_BACK){
+        btnFlipCamera.setOnClickListener(v -> {
+            if (lensFacing == CameraSelector.LENS_FACING_BACK) {
                 lensFacing = CameraSelector.LENS_FACING_FRONT;
             } else {
                 lensFacing = CameraSelector.LENS_FACING_BACK;
@@ -147,7 +143,7 @@ public class CameraActivity extends BaseActivity {
     private void captureImage() {
         loadingDialog.show();
 
-        File directory = new File(PickerConfig.DEFAULT_DIRECTORY);
+        File directory = PickerUtils.getExternalStoragePath(getApplicationContext());
         if (!directory.exists()) {
             directory.mkdir();
         }
@@ -160,12 +156,18 @@ public class CameraActivity extends BaseActivity {
         imageCapture.takePicture(outputFileOptions, executorService, new ImageCapture.OnImageSavedCallback() {
             @Override
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                if(lensFacing == CameraSelector.LENS_FACING_FRONT){
+                if (lensFacing == CameraSelector.LENS_FACING_FRONT) {
                     File imageFile = new File(mCurrentFilePath);
-                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());
-                    Bitmap flippedBitmap =  PickerUtils.flipBitmap(bitmap);
-                    mCurrentFilePath = directory + "/" + UUID.randomUUID().toString() + ".jpg";
-                    PickerUtils.saveBitmapToFile(mCurrentFilePath, flippedBitmap);
+                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+                    Bitmap rotatedBitmap = PickerUtils.checkRotateBitmapFrontCamera(imageFile.getAbsolutePath(), bitmap);
+                    if (rotatedBitmap != null) {
+                        Bitmap flippedBitmap = PickerUtils.flipBitmap(rotatedBitmap);
+                        mCurrentFilePath = directory + "/" + System.currentTimeMillis() + ".jpg";
+                        PickerUtils.saveBitmapToFile(mCurrentFilePath, flippedBitmap);
+                    } else {
+                        Toast.makeText(CameraActivity.this, "There is an error", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
                 returnData();
             }
@@ -232,6 +234,8 @@ public class CameraActivity extends BaseActivity {
                 returnFile = unCompressedFile;
             }
             mCurrentFilePath = returnFile.getAbsolutePath();
+            Log.e("FILE PATH", mCurrentFilePath);
+            Log.e("FILE LENGTH", returnFile.length() + "");
         }
 
         loadingDialog.dismiss();

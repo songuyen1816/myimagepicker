@@ -8,11 +8,11 @@ import com.bsp.myimagepicker.model.MyImage;
 public class PickerDiffCallback extends DiffUtil.ItemCallback<MyImage> {
     @Override
     public boolean areItemsTheSame(@NonNull MyImage oldItem, @NonNull MyImage newItem) {
-        return oldItem.getFilePath().equals(newItem.getFilePath());
+        return oldItem.getUri().equals(newItem.getUri());
     }
 
     @Override
     public boolean areContentsTheSame(@NonNull MyImage oldItem, @NonNull MyImage newItem) {
-        return oldItem.getFilePath().equals(newItem.getFilePath());
+        return oldItem.getUri().equals(newItem.getUri());
     }
 }

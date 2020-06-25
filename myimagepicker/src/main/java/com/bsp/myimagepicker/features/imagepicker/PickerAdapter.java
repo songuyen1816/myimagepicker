@@ -2,6 +2,8 @@ package com.bsp.myimagepicker.features.imagepicker;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +65,7 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
         }
 
         void bind(MyImage myImage) {
-            Glide.with(mContext).load(myImage.getFilePath()).into(binding.ivLocalImage);
+            Glide.with(mContext).load(myImage.getUri()).into(binding.ivLocalImage);
             binding.viewImagePicked.setBackground(imagePickedDrawable);
             binding.viewImagePicked.setVisibility(myImage.isPicked() ? View.VISIBLE : View.INVISIBLE);
 
@@ -71,11 +73,12 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
                 myImage.setPicked(!myImage.isPicked());
 
                 if (myImage.isPicked()) {
-                    listener.onImagePicked(myImage.getFilePath());
+                    Log.e("PATH", myImage.getUri().toString());
+                    listener.onImagePicked(myImage.getUri());
                     mListPicked.add(myImage);
                 } else {
-                    listener.onImageUnPicked(myImage.getFilePath());
-                    removeOldPicked(myImage.getFilePath());
+                    listener.onImageUnPicked(myImage.getUri());
+                    removeOldPicked(myImage.getUri());
                 }
 
                 notifyItemChanged(getAdapterPosition());
@@ -86,7 +89,7 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
     void notifyMaxCountItem() {
         for (int i = 0; i < getItemCount(); i++) {
             MyImage myImage = getItem(i);
-            if (myImage.getFilePath().equals(mListPicked.get(0).getFilePath())) {
+            if (myImage.getUri().equals(mListPicked.get(0).getUri())) {
                 myImage.setPicked(!myImage.isPicked());
                 notifyItemChanged(i);
                 mListPicked.remove(0);
@@ -95,10 +98,10 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
         }
     }
 
-    private void removeOldPicked(String path) {
+    private void removeOldPicked(Uri uri) {
         int removePos = 0;
         for (int i = 0; i < mListPicked.size(); i++) {
-            if (mListPicked.get(i).getFilePath().equals(path)) {
+            if (mListPicked.get(i).getUri().equals(uri)) {
                 removePos = i;
                 break;
             }

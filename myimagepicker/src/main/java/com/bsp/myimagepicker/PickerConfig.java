@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.Serializable;
 
 public class PickerConfig implements Serializable {
-    public final static String DEFAULT_DIRECTORY = Environment.getExternalStorageDirectory() + "/com.bsp.imagepicker/";
 
     public static int IMAGE_PICKER_REQUEST = 1816;
     public static String CONFIG_BUNDLE_KEY = "PICKER_CONFIG";

@@ -7,23 +7,29 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.bsp.myimagepicker.MyImagePicker;
 import com.bsp.myimagepicker.PickerConfig;
 import com.bsp.myimagepicker.model.MyImage;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ImageView iv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        iv = findViewById(R.id.iv_return);
+
         PickerConfig config = new PickerConfig.Builder()
-//                .setCompressed(true)
+                .setCompressed(true)
                 .setPickerTitle("Chọn Ảnh")
                 .setStyleColor(Color.parseColor("#3498db")).build();
 
@@ -36,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PickerConfig.IMAGE_PICKER_REQUEST && resultCode == RESULT_OK) {
             if (data != null) {
                 List<String> filePath = data.getStringArrayListExtra(PickerConfig.FILE_PATH_DATA);
-
+                Glide.with(this).load(filePath.get(0)).into(iv);
             }
         }
     }
