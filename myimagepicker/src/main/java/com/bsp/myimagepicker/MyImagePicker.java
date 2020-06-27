@@ -49,6 +49,22 @@ public class MyImagePicker {
         showDialog(fragment);
     }
 
+    public void takePhoto(Activity activity) {
+        goTakePhoto(activity);
+    }
+
+    public void takePhoto(Fragment fragment) {
+        goTakePhoto(fragment);
+    }
+
+    public void pickImage(Activity activity) {
+        goPickImage(activity);
+    }
+
+    public void pickImage(Fragment fragment) {
+        goPickImage(fragment);
+    }
+
     private void showDialog(Activity context) {
         alertDialog = new AlertDialog.Builder(context).setMessage("Pick image from:")
                 .setPositiveButton("Camera", (dialog, which) -> {

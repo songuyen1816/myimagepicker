@@ -174,7 +174,7 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
         if (filePathPicked.isEmpty()) {
             return;
         }
-        DisposableManager.add(Single.fromCallable(() -> getImagePathAndReturnData()).doOnSubscribe(d -> showLoading())
+        DisposableManager.add(Single.fromCallable(this::getImagePathAndReturnData).doOnSubscribe(d -> showLoading())
                 .doOnTerminate(this::hideLoading)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
