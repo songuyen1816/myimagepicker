@@ -45,10 +45,10 @@ public final class PickerUtils {
 
         cursor = context.getContentResolver().query(
                 externalUri,
-                new String[]{MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_MODIFIED },
+                new String[]{MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_MODIFIED},
                 null,
                 null,
-                MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC"
+                MediaStore.Images.ImageColumns.DATE_MODIFIED + " DESC"
         );
 
         if (cursor != null) {
@@ -140,7 +140,7 @@ public final class PickerUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return context.getExternalFilesDir(null);
         } else {
-            return new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "Android/data/" + context.getPackageName() + "/files/");
+            return new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/" + context.getPackageName() + "/");
         }
     }
 
