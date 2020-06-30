@@ -112,11 +112,13 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     }
 
     private void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+        if ((ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     PERMISSION_REQUEST);
         } else {
             loadImagesFromSDCard();
@@ -176,8 +178,6 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
         }
         DisposableManager.add(Single.fromCallable(this::getImagePathAndReturnData).doOnSubscribe(d -> showLoading())
                 .doOnTerminate(this::hideLoading)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(paths -> {
                     Intent i = new Intent();
                     i.putStringArrayListExtra(PickerConfig.FILE_PATH_DATA, paths);

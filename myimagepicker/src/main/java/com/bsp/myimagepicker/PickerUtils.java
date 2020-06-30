@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.Window;
 
@@ -68,6 +69,16 @@ public final class PickerUtils {
         final ContentResolver contentResolver = context.getContentResolver();
         if (contentResolver == null)
             return null;
+
+        File directory = getExternalStoragePath(context);
+
+        if(!directory.exists()){
+            try {
+                Log.e("MAKE DIR", directory.mkdir() + "");
+            } catch (Exception e){
+                Log.e("APP", e.getLocalizedMessage());
+            }
+        }
 
         String filePath = getExternalStoragePath(context).getAbsolutePath() + File.separator +
                 +System.currentTimeMillis() + ".jpeg";
@@ -140,7 +151,7 @@ public final class PickerUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return context.getExternalFilesDir(null);
         } else {
-            return new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/" + context.getPackageName() + "/");
+            return new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/"+context.getPackageName()+"/");
         }
     }
 
