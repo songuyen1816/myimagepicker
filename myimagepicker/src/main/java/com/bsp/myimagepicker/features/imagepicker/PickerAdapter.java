@@ -17,6 +17,7 @@ import com.bsp.myimagepicker.databinding.LayoutItemImageBinding;
 import com.bsp.myimagepicker.listener.ImageAdapterListener;
 import com.bsp.myimagepicker.model.MyImage;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
         }
 
         void bind(MyImage myImage) {
-            Glide.with(mContext).load(myImage.getUri()).into(binding.ivLocalImage);
+            Glide.with(mContext).load(myImage.getUri()).transition(DrawableTransitionOptions.withCrossFade()).into(binding.ivLocalImage);
             binding.viewImagePicked.setBackground(imagePickedDrawable);
             binding.viewImagePicked.setVisibility(myImage.isPicked() ? View.VISIBLE : View.INVISIBLE);
 
@@ -73,7 +74,6 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
                 myImage.setPicked(!myImage.isPicked());
 
                 if (myImage.isPicked()) {
-                    Log.e("PATH", myImage.getUri().toString());
                     listener.onImagePicked(myImage.getUri());
                     mListPicked.add(myImage);
                 } else {

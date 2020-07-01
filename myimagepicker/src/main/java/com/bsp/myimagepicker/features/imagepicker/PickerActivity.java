@@ -208,7 +208,6 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
                 } else {
                     compressed = unCompressed;
                 }
-                Log.e("FILE PATH", compressed.getAbsolutePath());
                 filePathTemp.add(compressed.getAbsolutePath());
             }
 
