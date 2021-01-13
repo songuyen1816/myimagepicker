@@ -44,11 +44,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class CameraActivity extends BaseActivity {
 
     private final int PERMISSION_REQUEST = 111;
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private PreviewView previewView;
     private ImageCapture imageCapture;
@@ -277,7 +278,8 @@ public class CameraActivity extends BaseActivity {
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 openCamera();
             } else {
-                checkPermissions();
+                setResult(RESULT_CANCELED);
+                finish();
             }
         }
     }

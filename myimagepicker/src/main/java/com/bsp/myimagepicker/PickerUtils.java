@@ -72,10 +72,10 @@ public final class PickerUtils {
 
         File directory = getExternalStoragePath(context);
 
-        if(!directory.exists()){
+        if (!directory.exists()) {
             try {
                 Log.e("MAKE DIR", directory.mkdir() + "");
-            } catch (Exception e){
+            } catch (Exception e) {
                 Log.e("APP", e.getLocalizedMessage());
             }
         }
@@ -148,11 +148,7 @@ public final class PickerUtils {
     }
 
     public static File getExternalStoragePath(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return context.getExternalFilesDir(null);
-        } else {
-            return new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/"+context.getPackageName()+"/");
-        }
+        return context.getExternalFilesDir(null);
     }
 
     public static Bitmap checkRotateBitmapFrontCamera(String absolutePath, Bitmap bitmap) {

@@ -132,7 +132,8 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
         if (requestCode == PERMISSION_REQUEST && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             loadImagesFromSDCard();
         } else {
-            checkPermissions();
+            setResult(RESULT_CANCELED);
+            finish();
         }
     }
 
