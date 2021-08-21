@@ -74,10 +74,10 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
                 myImage.setPicked(!myImage.isPicked());
 
                 if (myImage.isPicked()) {
-                    listener.onImagePicked(myImage.getUri());
+                    listener.onImagePicked(myImage);
                     mListPicked.add(myImage);
                 } else {
-                    listener.onImageUnPicked(myImage.getUri());
+                    listener.onImageUnPicked(myImage);
                     removeOldPicked(myImage.getUri());
                 }
 

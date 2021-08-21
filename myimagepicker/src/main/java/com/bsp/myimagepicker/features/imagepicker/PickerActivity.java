@@ -24,6 +24,7 @@ import com.bsp.myimagepicker.base.BaseActivity;
 import com.bsp.myimagepicker.databinding.ActivityImagePickerBinding;
 import com.bsp.myimagepicker.listener.ImageAdapterListener;
 import com.bsp.myimagepicker.listener.ImagePickerListener;
+import com.bsp.myimagepicker.model.MyImage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     private final int PERMISSION_REQUEST = 111;
     private PickerAdapter adapter;
     private ActivityImagePickerBinding binding;
-    private ArrayList<Uri> filePathPicked = new ArrayList<>();
+    private ArrayList<MyImage> filePathPicked = new ArrayList<>();
     private PickerConfig currentConfig;
     private boolean permissionGrantFlag = false;
 
@@ -134,25 +135,25 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     }
 
     @Override
-    public void onImagePicked(Uri uri) {
+    public void onImagePicked(MyImage image) {
         if (filePathPicked.size() >= currentConfig.getMaxCount()) {
             filePathPicked.remove(0);
             adapter.notifyMaxCountItem();
         }
-        filePathPicked.add(uri);
+        filePathPicked.add(image);
         fillConfig();
     }
 
     @Override
-    public void onImageUnPicked(Uri uri) {
-        removePickedImage(uri);
+    public void onImageUnPicked(MyImage image) {
+        removePickedImage(image.getUri());
         fillConfig();
     }
 
     private void removePickedImage(Uri uri) {
         int removePos = 0;
         for (int i = 0; i < filePathPicked.size(); i++) {
-            if (filePathPicked.get(i).equals(uri)) {
+            if (filePathPicked.get(i).getUri().equals(uri)) {
                 removePos = i;
                 break;
             }
@@ -181,8 +182,13 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
     private ArrayList<String> getImagePathAndReturnData() {
         ArrayList<String> listPath = new ArrayList<>();
 
-        for (Uri uri : filePathPicked) {
-            String path = PickerUtils.createCopyAndReturnRealPathVideo(getApplicationContext(), uri);
+        for (MyImage myImage : filePathPicked) {
+            String path = "";
+            if (myImage.isVideo()) {
+                path = PickerUtils.createCopyAndReturnRealPathVideo(getApplicationContext(), myImage.getUri());
+            } else {
+                path = PickerUtils.createCopyAndReturnRealPathImage(getApplicationContext(), myImage.getUri());
+            }
             listPath.add(path);
         }
 
