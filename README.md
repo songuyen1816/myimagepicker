@@ -21,9 +21,10 @@ MyImagePicker.getInstance().start(activity);
 - Customize
 ```
 PickerConfig config = new PickerConfig.Builder()
+		.allowPickVideo(true)
                 .setMaxCount(2)
 		.setCompressed(true)
-                .setPickerTitle("Pick your images")
+                .setPickerTitle("Pick images / videos")
                 .setStyleColor(Color.parseColor("#3498db")).build();
                 
 MyImagePicker.getInstance().setPickerConfig(config).start(activity);
