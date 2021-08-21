@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
         PickerConfig config = new PickerConfig.Builder()
                 .setCompressed(true)
-                .setPickerTitle("Chọn Ảnh")
+                .allowPickVideo(true)
+                .setPickerTitle("Chọn Ảnh/Video")
                 .setStyleColor(Color.parseColor("#3498db")).build();
 
         MyImagePicker.getInstance().setPickerConfig(config).start(this);

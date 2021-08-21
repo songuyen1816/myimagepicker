@@ -56,7 +56,6 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
     }
 
 
-
     class PickerViewHolder extends RecyclerView.ViewHolder {
         private LayoutItemImageBinding binding;
 
@@ -69,6 +68,7 @@ public class PickerAdapter extends ListAdapter<MyImage, PickerAdapter.PickerView
             Glide.with(mContext).load(myImage.getUri()).transition(DrawableTransitionOptions.withCrossFade()).into(binding.ivLocalImage);
             binding.viewImagePicked.setBackground(imagePickedDrawable);
             binding.viewImagePicked.setVisibility(myImage.isPicked() ? View.VISIBLE : View.INVISIBLE);
+            binding.icPlay.setVisibility(myImage.isVideo() ? View.VISIBLE : View.INVISIBLE);
 
             binding.ivLocalImage.setOnClickListener(v -> {
                 myImage.setPicked(!myImage.isPicked());

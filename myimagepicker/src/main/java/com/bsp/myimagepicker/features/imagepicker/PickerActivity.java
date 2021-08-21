@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +24,6 @@ import com.bsp.myimagepicker.base.BaseActivity;
 import com.bsp.myimagepicker.databinding.ActivityImagePickerBinding;
 import com.bsp.myimagepicker.listener.ImageAdapterListener;
 import com.bsp.myimagepicker.listener.ImagePickerListener;
-import com.bsp.myimagepicker.model.MyImage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -92,31 +90,21 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
         binding.rvImages.setAdapter(adapter);
 
         DisposableManager.add(
-                Single.fromCallable(() -> PickerUtils.getExternalStorageImagesQ(getApplicationContext()))
-                        .map(paths -> {
-                            List<MyImage> imageList = new ArrayList<>();
-                            for (Uri uri : paths) {
-                                imageList.add(new MyImage(uri, false));
-                            }
-                            return imageList;
-                        })
+                Single.fromCallable(() -> currentConfig.isAllowPickVideo() ?
+                        PickerUtils.getExternalStorageVideoAndImages(getApplicationContext()) :
+                        PickerUtils.getExternalStorageImagesQ(getApplicationContext()))
                         .doOnSubscribe(d -> showLoading())
                         .doOnTerminate(this::hideLoading)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(images -> {
-                            adapter.submitList(images);
-                        }, throwable -> {
-                            Log.e("THROWABLE", throwable.getLocalizedMessage());
-                        }));
+                        .subscribe(images ->
+                                adapter.submitList(images), throwable -> Log.e("THROWABLE", throwable.getLocalizedMessage())));
     }
 
     private void checkPermissions() {
-        if ((ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     PERMISSION_REQUEST);
@@ -194,7 +182,7 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
         ArrayList<String> listPath = new ArrayList<>();
 
         for (Uri uri : filePathPicked) {
-            String path = PickerUtils.createCopyAndReturnRealPath(getApplicationContext(), uri);
+            String path = PickerUtils.createCopyAndReturnRealPathVideo(getApplicationContext(), uri);
             listPath.add(path);
         }
 
@@ -202,14 +190,18 @@ public class PickerActivity extends BaseActivity implements ImageAdapterListener
             ArrayList<String> filePathTemp = new ArrayList<>();
 
             for (String filePath : listPath) {
-                File unCompressed = new File(filePath);
-                File compressed;
-                if (unCompressed.length() > 1024 * 1024) {
-                    compressed = PickerUtils.compressImage(getApplicationContext(), unCompressed);
+                if (filePath.contains("jpeg")) {
+                    File unCompressed = new File(filePath);
+                    File compressed;
+                    if (unCompressed.length() > 1024 * 1024) {
+                        compressed = PickerUtils.compressImage(getApplicationContext(), unCompressed);
+                    } else {
+                        compressed = unCompressed;
+                    }
+                    filePathTemp.add(compressed.getAbsolutePath());
                 } else {
-                    compressed = unCompressed;
+                    filePathTemp.add(filePath);
                 }
-                filePathTemp.add(compressed.getAbsolutePath());
             }
 
             listPath.clear();

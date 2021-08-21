@@ -11,8 +11,6 @@ import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -21,6 +19,8 @@ import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bsp.myimagepicker.model.MyImage;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import id.zelory.compressor.Compressor;
@@ -35,8 +37,8 @@ import id.zelory.compressor.Compressor;
 
 public final class PickerUtils {
 
-    public static List<Uri> getExternalStorageImagesQ(Context context) {
-        List<Uri> listImage = new ArrayList<>();
+    public static List<MyImage> getExternalStorageImagesQ(Context context) {
+        List<MyImage> listImage = new ArrayList<>();
 
         Uri externalUri;
         Cursor cursor;
@@ -46,25 +48,70 @@ public final class PickerUtils {
 
         cursor = context.getContentResolver().query(
                 externalUri,
-                new String[]{MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_MODIFIED},
+                new String[]{MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_ADDED},
                 null,
                 null,
-                MediaStore.Images.ImageColumns.DATE_MODIFIED + " DESC"
+                MediaStore.Images.ImageColumns.DATE_ADDED + " DESC"
         );
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String id = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+                int dateTakenIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_ADDED);
+                long millis = cursor.getLong(dateTakenIndex);
                 Uri uri = ContentUris.withAppendedId(externalUri, Long.parseLong(id));
-                listImage.add(uri);
+                listImage.add(new MyImage(uri, millis, false, false));
             }
             cursor.close();
         }
         return listImage;
     }
 
+    public static List<MyImage> getExternalStorageVideosQ(Context context) {
+        List<MyImage> listVideo = new ArrayList<>();
+
+        Uri externalUri;
+        Cursor cursor;
+
+        externalUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+
+        cursor = context.getContentResolver().query(
+                externalUri,
+                new String[]{MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_ADDED},
+                null,
+                null,
+                MediaStore.Video.VideoColumns.DATE_ADDED + " DESC"
+        );
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String id = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+
+                int dateTakenIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_ADDED);
+                long millis = cursor.getLong(dateTakenIndex);
+
+//                String dateTaken = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATE_ADDED));
+                Uri uri = ContentUris.withAppendedId(externalUri, Long.parseLong(id));
+                listVideo.add(new MyImage(uri, millis, false, true));
+            }
+            cursor.close();
+        }
+        return listVideo;
+    }
+
+    public static List<MyImage> getExternalStorageVideoAndImages(Context context) {
+        List<MyImage> imagesAndVideos = new ArrayList<>();
+        imagesAndVideos.addAll(getExternalStorageVideosQ(context));
+        imagesAndVideos.addAll(getExternalStorageImagesQ(context));
+
+        Comparator<MyImage> compareById = Comparator.comparing(MyImage::getDateTaken);
+        imagesAndVideos.sort(compareById.reversed());
+
+        return imagesAndVideos;
+    }
+
     @Nullable
-    public static String createCopyAndReturnRealPath(
+    public static String createCopyAndReturnRealPathImage(
             @NonNull Context context, @NonNull Uri uri) {
         final ContentResolver contentResolver = context.getContentResolver();
         if (contentResolver == null)
@@ -82,6 +129,47 @@ public final class PickerUtils {
 
         String filePath = getExternalStoragePath(context).getAbsolutePath() + File.separator +
                 +System.currentTimeMillis() + ".jpeg";
+
+        File file = new File(filePath);
+        try {
+            InputStream inputStream = contentResolver.openInputStream(uri);
+            if (inputStream == null)
+                return null;
+
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buf)) > 0)
+                outputStream.write(buf, 0, len);
+
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException ignore) {
+            return null;
+        }
+
+        return file.getAbsolutePath();
+    }
+
+    @Nullable
+    public static String createCopyAndReturnRealPathVideo(
+            @NonNull Context context, @NonNull Uri uri) {
+        final ContentResolver contentResolver = context.getContentResolver();
+        if (contentResolver == null)
+            return null;
+
+        File directory = getExternalStoragePath(context);
+
+        if (!directory.exists()) {
+            try {
+                Log.e("MAKE DIR", directory.mkdir() + "");
+            } catch (Exception e) {
+                Log.e("APP", e.getLocalizedMessage());
+            }
+        }
+
+        String filePath = getExternalStoragePath(context).getAbsolutePath() + File.separator +
+                +System.currentTimeMillis() + ".mp4";
 
         File file = new File(filePath);
         try {

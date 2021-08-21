@@ -17,6 +17,7 @@ public class PickerConfig implements Serializable {
     private boolean isMultiPicker;
     private boolean isCompressed;
     private int maxCount;
+    private boolean allowPickVideo;
 
     public String getPickerTitle() {
         return pickerTitle;
@@ -28,6 +29,10 @@ public class PickerConfig implements Serializable {
 
     public boolean isMultiPicker() {
         return isMultiPicker;
+    }
+
+    public boolean isAllowPickVideo() {
+        return allowPickVideo;
     }
 
     public int getMaxCount() {
@@ -44,13 +49,15 @@ public class PickerConfig implements Serializable {
         this.isMultiPicker = builder.isMultiPicker;
         this.maxCount = builder.maxCount;
         this.isCompressed = builder.isCompressed;
+        this.allowPickVideo = builder.allowPickVideo;
     }
 
     public static class Builder{
-        private String pickerTitle = "Pick an image";
+        private String pickerTitle = "Pick an Image";
         private int pickerToolbarColor = Color.parseColor("#3498db");
         private boolean isMultiPicker = false;
         private boolean isCompressed = false;
+        private boolean allowPickVideo = false;
         private int maxCount = 1;
 
         public Builder setPickerTitle(String pickerTitle){
@@ -60,6 +67,11 @@ public class PickerConfig implements Serializable {
 
         public Builder setStyleColor(int pickerToolbarColor){
             this.pickerToolbarColor = pickerToolbarColor;
+            return this;
+        }
+
+        public Builder allowPickVideo(boolean allowPickVideo){
+            this.allowPickVideo = allowPickVideo;
             return this;
         }
 

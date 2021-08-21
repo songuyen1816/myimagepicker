@@ -4,12 +4,20 @@ import android.net.Uri;
 
 public class MyImage {
     private Uri uri;
+    private Long dateTaken;
     private boolean isPicked;
+    private boolean isVideo;
 
 
-    public MyImage(Uri uri, boolean isPicked) {
+    public MyImage(Uri uri, Long dateTaken, boolean isPicked, boolean isVideo) {
+        this.dateTaken = dateTaken;
         this.uri = uri;
         this.isPicked = isPicked;
+        this.isVideo = isVideo;
+    }
+
+    public Long getDateTaken() {
+        return dateTaken;
     }
 
     public Uri getUri() {
@@ -26,5 +34,9 @@ public class MyImage {
 
     public void setPicked(boolean picked) {
         isPicked = picked;
+    }
+
+    public boolean isVideo() {
+        return isVideo;
     }
 }

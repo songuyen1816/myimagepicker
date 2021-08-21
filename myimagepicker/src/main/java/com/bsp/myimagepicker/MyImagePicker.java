@@ -66,7 +66,7 @@ public class MyImagePicker {
     }
 
     private void showDialog(Activity context) {
-        alertDialog = new AlertDialog.Builder(context).setMessage("Pick image from:")
+        alertDialog = new AlertDialog.Builder(context).setMessage("Pick from:")
                 .setPositiveButton("Camera", (dialog, which) -> {
                     goTakePhoto(context);
                 })
@@ -79,7 +79,7 @@ public class MyImagePicker {
     }
 
     private void showDialog(Fragment context) {
-        alertDialog = new AlertDialog.Builder(context.getContext()).setMessage("Pick image from:")
+        alertDialog = new AlertDialog.Builder(context.requireContext()).setMessage("Pick from:")
                 .setPositiveButton("Camera", (dialog, which) -> {
                     goTakePhoto(context);
                 })
@@ -121,8 +121,7 @@ public class MyImagePicker {
 
     private void clearData(Context context) {
         if (ContextCompat.checkSelfPermission(context,
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         File directory = PickerUtils.getExternalStoragePath(context.getApplicationContext());
