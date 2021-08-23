@@ -107,6 +107,26 @@ public final class PickerUtils {
         Comparator<MyImage> compareById = Comparator.comparing(MyImage::getDateTaken);
         imagesAndVideos.sort(compareById.reversed());
 
+        boolean haveSwap;
+        for (int i = 0; i < imagesAndVideos.size() - 1; i++) {
+
+            haveSwap = false;
+
+            for (int j = 0; j < imagesAndVideos.size() - i - 1; j++) {
+                if (imagesAndVideos.get(j).getDateTaken() < imagesAndVideos.get(j + 1).getDateTaken()) {
+                    MyImage temp1 = imagesAndVideos.get(j);
+                    MyImage temp2 = imagesAndVideos.get(j + 1);
+                    imagesAndVideos.set(j, temp2);
+                    imagesAndVideos.set(j + 1, temp1);
+                    haveSwap = true;
+                }
+            }
+
+            if(!haveSwap){
+                break;
+            }
+        }
+
         return imagesAndVideos;
     }
 
