@@ -104,8 +104,8 @@ public final class PickerUtils {
         imagesAndVideos.addAll(getExternalStorageVideosQ(context));
         imagesAndVideos.addAll(getExternalStorageImagesQ(context));
 
-//        Comparator<MyImage> compareById = Comparator.comparing(MyImage::getDateTaken);
-//        imagesAndVideos.sort(compareById.reversed());
+        Comparator<MyImage> compareById = Comparator.comparing(MyImage::getDateTaken);
+        imagesAndVideos.sort(compareById.reversed());
 
         boolean haveSwap;
         for (int i = 0; i < imagesAndVideos.size() - 1; i++) {
