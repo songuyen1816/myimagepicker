@@ -14,13 +14,16 @@ dependencies {
 }
 ```
 ## Usage
-- Simple using
+
+- Both take photo from camera and pick image from gallery
 ```
 MyImagePicker.getInstance().start(activity);
 ```
+- Just take photo from camera
 ```
 MyImagePicker.getInstance().takePhoto(activity);
 ```
+- Just pick image from gallery
 ```
 MyImagePicker.getInstance().pickImage(activity);
 ```
