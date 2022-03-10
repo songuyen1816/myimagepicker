@@ -18,6 +18,12 @@ dependencies {
 ```
 MyImagePicker.getInstance().start(activity);
 ```
+```
+MyImagePicker.getInstance().takePhoto(activity);
+```
+```
+MyImagePicker.getInstance().pickImage(activity);
+```
 - Customize
 ```
 PickerConfig config = new PickerConfig.Builder()
