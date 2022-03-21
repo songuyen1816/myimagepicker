@@ -1,5 +1,12 @@
 # Simple image picker [![](https://jitpack.io/v/songuyen1816/myimagepicker.svg)](https://jitpack.io/#songuyen1816/myimagepicker)
 Just a simple library to help you pick images in external storage, it also allows take photo from camera and pick videos from gallery, give a star if you find it useful
+
+<p float="left">
+<img src="https://i.postimg.cc/5xQJPz16/z3277208639433-2d02baf37adfcf73d289de8064c06875.jpg" width="300" height="600"/>
+<img src="https://i.postimg.cc/qJ8TrdNr/z3277220147310-a3132fd3091af5ef9ab2aad6dd1ef4d9.jpg" width="300" height="600"/>
+<img src="https://i.postimg.cc/1mxQbz5M/z3277208344474-e0fe2bf7c04c1a0cba7b418504de3cbb.jpg" width="300" height="600"/>
+/p>
+
 ## Get it
 ```
 allprojects {
